@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HelpDeskChat.Models.Chat>
+
+@{
+    ViewData["Title"] = "Chat";
+}
+
+@section style{
+    <style>
+        .list-group-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .list-group-item:hover {
+                background-color: #f0f0f0;
+            }
+
+        .chat-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            padding: 20px;
+            height: 70vh;
+            overflow-y: auto;
+        }
+
+        .input-container {
+            margin-top: 20px;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="row" id="chat-area">
+        <!-- Contact List -->
+        <div class="col-md-4">
+            <h2>Contacts</h2>
+            <select class="w-100 mb-3" id="selectChats" onchange="changeChats()">
+                <option value="open" selected>Abertos</option>
+                <option value="closed">Encerrados</option>
+            </select>
+            <ul class="list-group">
+                @if (Model.Count() != 0)
+                {
+                    foreach (var chat in Model)
+                    {
+                        <li class="list-group-item @(chat.Closed ? "closed" : "open")" id="@chat.Id" onclick="showChat('@chat.Id')">Chat @chat.Id <strong style="color:green" id="newMessages@(chat.Id)"></strong></li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!getUser()) {
+            window.location.href = "/User/Login";
+        } else {
+            var user = getUser();
+            $('#username').html('Olá, ' + user.name);
+        }
+
+        enableEmployeeChat();
+        showOpenChats();
+    })
+</script>

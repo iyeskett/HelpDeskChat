@@ -1,0 +1,118 @@
+﻿@model HelpDeskChat.Models.User
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+@section style{
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+            .form-signin .checkbox {
+                font-weight: 400;
+            }
+
+            .form-signin .form-floating:focus-within {
+                z-index: 2;
+            }
+
+            .form-signin input[type="email"] {
+                margin-bottom: -1px;
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+
+            .form-signin input[type="password"] {
+                margin-bottom: 10px;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+    </style>
+   }
+
+
+
+<form>
+    @Html.AntiForgeryToken()
+    @*<img class="mb-4" src="" alt="" width="72" height="57">*@
+    <h1 class="h3 mb-3 fw-normal">WhatsAppManager</h1>
+
+    <span class="text-danger" id="error">@ViewData["Error"]</span>
+    <span class="text-success" id="success">@ViewData["Success"]</span>
+    <div class="form-floating">
+        <input asp-for="Email" type="email" class="form-control" id="email" placeholder="name@example.com">
+        <label for="floatingInput">Email</label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-floating">
+        <input asp-for="Password" type="password" class="form-control" id="password" placeholder="********">
+        <label for="floatingPassword">Senha</label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <button type="button" class="btn btn-link text-dark" data-bs-toggle="modal" data-bs-target="#requestResetPasswordModal">Esqueci a senha</button>
+
+    <button class="w-100 btn btn-lg btn-primary" type="button" id="Login">Entrar</button>
+    <hr style="height:2px;background-color:gray; border:none">
+    <button type="button" class="w-100 btn btn-lg btn-success" data-bs-toggle="modal" data-bs-target="#signUpModal">Criar nova conta</button>
+    <p class="mt-5 mb-3 text-muted">© 2023</p>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+
+        if (getUser()) {
+            window.location.href = "/Home";
+        }
+
+        $('#Login').click(function (e) {
+            var url = "/User/Login";
+            var email = $("#email").val();
+            var password = $("#password").val();
+            var token = $('input[name="__RequestVerificationToken"').val();
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    __RequestVerificationToken: token,
+                    Email: email, Password: password
+                },
+                success: function (res, status) {
+                    if (res.success) {
+                        setUser(res.user);
+                        window.location.href = "/Chat";
+                    }else{
+                        $('#error').html(res.message)
+                    }
+                },
+                error: function (xhr, res, e) {
+                    console.log(xhr, res, e);
+                }
+            });
+        })
+    })
+</script>

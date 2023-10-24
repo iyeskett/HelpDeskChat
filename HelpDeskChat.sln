@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDeskChat", "HelpDeskChat\HelpDeskChat.csproj", "{C8CB997A-3737-42C5-BEF6-5CCF430CEB1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C8CB997A-3737-42C5-BEF6-5CCF430CEB1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8CB997A-3737-42C5-BEF6-5CCF430CEB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8CB997A-3737-42C5-BEF6-5CCF430CEB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8CB997A-3737-42C5-BEF6-5CCF430CEB1C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F2F057D1-5F78-40DC-A7E3-66ACBA336E44}
+	EndGlobalSection
+EndGlobal
