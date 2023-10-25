@@ -25,6 +25,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
     display: none;
+    background-color: white;
 }
 
 #chat-header {
@@ -74,16 +75,6 @@ body {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-}
-
-#send-button {
-    width: 100%;
-    background-color: #0074d9;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
 }
 
 #toggle-button {

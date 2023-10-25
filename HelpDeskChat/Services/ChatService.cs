@@ -24,5 +24,20 @@ namespace HelpDeskChat.Services
 
             return chat;
         }
+
+        public async Task<bool> UpdateAsync(Chat chat)
+        {
+            try
+            {
+                _context.Chat.Update(chat);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

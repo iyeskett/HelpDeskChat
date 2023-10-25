@@ -130,62 +130,6 @@ function enableEmployeeChat() {
     })
 }
 
-function showChat(chatId) {
-    currentChatId = chatId;
-
-    $(`#newMessages${chatId}`).html('');
-
-    connection.invoke("GetMessagesByChatId", parseInt(chatId));
-
-    connection.on("ReceiveMessages", (messages, chat) => {
-        var disabled = chat.closed ? "disabled" : ""
-        var chatMessage = chat.closed ? "Chat encerrado" : "";
-
-        var htmlMessage = `<div class="col-md-8" id="chat">
-            <div class="d-flex justify-content-between">
-                <h2>Chat ${chat.id} ${chatMessage ? "- " + chatMessage : ""}</h2>
-                <button id="send-button10" class="btn bg-danger text-white" style="margin-top: 5px;" ${disabled}>Encerrar</button>
-            </div>
-
-            <div class="chat-container" id="chat-container${chat.id}">
-                ${getHtmlMessages(messages)}
-            </div>
-            <div class="input-container">
-                <textarea id="message-input${chat.id}" style="max-height:150px;" class="form-control" placeholder="${chatMessage}" ${disabled}></textarea>
-                <button id="send-button${chat.id}" class="btn btn-primary" style="margin-top: 5px;" ${disabled}>Enviar</button>
-            </div>
-            </div>`;
-
-        $("#chat").remove();
-        $(`#chat-area`).append(htmlMessage);
-
-        var messageInput = $(`#message-input${currentChatId}`)[0];
-        var sendButton = $(`#send-button${currentChatId}`)[0];
-
-        if (sendButton) {
-            sendButton.addEventListener('click', () => {
-                var messageText = messageInput.value;
-                if (messageText) {
-                    sendMessageToCustomer(messageText);
-                    messageInput.value = '';
-                }
-            })
-        }
-    })
-
-    function getHtmlMessages(messages) {
-        var html = '';
-
-        messages.forEach((msg) => {
-            var htmlClass = msg.sender == "Employee" ? "user" : "other";
-            var sender = msg.sender == "Employee" ? "Você" : "Cliente";
-            html += `<div class="message ${htmlClass}-message">${sender}: ${msg.text}</div> \n`
-        })
-
-        return html;
-    }
-}
-
 function enableCustomerChat() {
     const chatContainer = document.getElementById('chat-container');
     const chatHeader = document.getElementById('chat-header');
@@ -232,9 +176,108 @@ function enableCustomerChat() {
         $("#chat-box").append(htmlMessage);
         chatBox.scrollTop = 9999999;
     })
-    //messageInput.addEventListener('keypress', function (e) {
-    //    if (e.key === 'Enter') {
-    //        sendButton.click();
-    //    }
-    //});
+
+    connection.on("ChatClosed", (closed) => {
+        console.info(closed);
+        if (closed) {
+            var messageInput = $(`#message-input`)[0];
+            var sendButton = $(`#send-button`)[0];
+
+            messageInput.disabled = true;
+            messageInput.value = "Chat encerrado."
+            sendButton.disabled = true;
+
+            sessionStorage.removeItem("chatInfo");
+        }
+    })
+}
+
+function showChat(chatId) {
+    currentChatId = chatId;
+
+    $(`#newMessages${chatId}`).html('');
+
+    connection.invoke("GetMessagesByChatId", parseInt(chatId));
+
+    connection.on("ReceiveMessages", (messages, chat) => {
+        var disabled = chat.closed ? "disabled" : ""
+        var chatMessage = chat.closed ? "Chat encerrado" : "";
+
+        var htmlMessage = `<div class="col-md-8" id="chat">
+            <div class="d-flex justify-content-between">
+                <h2>Chat ${chat.id} ${chatMessage ? "- " + chatMessage : ""}</h2>
+                <button id="end-button${chat.id}" class="btn bg-danger text-white" style="margin-top: 5px;" onclick="endChat('${chat.id}')" ${disabled}>Encerrar</button>
+            </div>
+
+            <div class="chat-container" id="chat-container${chat.id}">
+                ${getHtmlMessages(messages)}
+            </div>
+            <div class="input-container">
+                <textarea id="message-input${chat.id}" style="max-height:150px;" class="form-control" placeholder="${chatMessage}" ${disabled} placeholder="${chatMessage}"></textarea>
+                <button id="send-button${chat.id}" class="btn btn-primary" style="margin-top: 5px;" ${disabled}>Enviar</button>
+            </div>
+            </div>`;
+
+        $("#chat").remove();
+        $(`#chat-area`).append(htmlMessage);
+
+        var messageInput = $(`#message-input${chat.id}`)[0];
+        var sendButton = $(`#send-button${chat.id}`)[0];
+
+        if (sendButton) {
+            sendButton.addEventListener('click', () => {
+                var messageText = messageInput.value;
+                if (messageText) {
+                    sendMessageToCustomer(messageText);
+                    messageInput.value = '';
+                }
+            })
+        }
+    })
+
+    connection.on("ChatClosed", (closed) => {
+        if (closed) {
+            var endButton = $(`#end-button${currentChatId}`)[0];
+            var messageInput = $(`#message-input${currentChatId}`)[0];
+            var sendButton = $(`#send-button${currentChatId}`)[0];
+
+            endButton.disabled = true;
+            messageInput.disabled = true;
+            messageInput.value = "Chat encerrado."
+            sendButton.disabled = true;
+        }
+    })
+
+    function getHtmlMessages(messages) {
+        var html = '';
+
+        messages.forEach((msg) => {
+            var htmlClass = msg.sender == "Employee" ? "user" : "other";
+            var sender = msg.sender == "Employee" ? "Você" : "Cliente";
+            html += `<div class="message ${htmlClass}-message">${sender}: ${msg.text}</div> \n`
+        })
+
+        return html;
+    }
+}
+
+function endChat(chatId) {
+    connection.invoke("EndChat", parseInt(chatId));
+
+    connection.on("ChatClosed", (closed) => {
+        if (closed) {
+            var endButton = $(`#end-button${currentChatId}`)[0];
+            var messageInput = $(`#message-input${currentChatId}`)[0];
+            var sendButton = $(`#send-button${currentChatId}`)[0];
+
+            $(`#${currentChatId}`).addClass("closed");
+            $(`#${currentChatId}`).removeClass("open");
+            $(`#${currentChatId}`).hide();
+            $(`#chat`).remove();
+            endButton.disabled = true;
+            messageInput.disabled = true;
+            messageInput.value = "Chat encerrado."
+            sendButton.disabled = true;
+        }
+    })
 }

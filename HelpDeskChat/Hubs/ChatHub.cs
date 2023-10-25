@@ -95,5 +95,21 @@ namespace HelpDeskChat.Hubs
                 throw;
             }
         }
+
+        public async Task EndChat(int chatId)
+        {
+            try
+            {
+                Chat dbChat = await _chatService.FindByIdAsync(chatId);
+                dbChat.Closed = true;
+                await _chatService.UpdateAsync(dbChat);
+
+                await Clients.All.SendAsync("ChatClosed", true);
+            }
+            catch (Exception)
+            {
+                await Clients.All.SendAsync("ChatClosed", false);
+            }
+        }
     }
 }
