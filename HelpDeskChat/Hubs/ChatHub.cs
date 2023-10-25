@@ -104,7 +104,7 @@ namespace HelpDeskChat.Hubs
                 dbChat.Closed = true;
                 await _chatService.UpdateAsync(dbChat);
 
-                await Clients.All.SendAsync("ChatClosed", true);
+                await Clients.All.SendAsync("ChatClosed", true, dbChat.Id);
             }
             catch (Exception)
             {

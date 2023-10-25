@@ -1,15 +1,12 @@
 ﻿"use strict"
 
-var employeeConnection;
+var employeeConnection = new signalR.HubConnectionBuilder().withUrl('/ChatHub').withAutomaticReconnect().build();
 var currentChatId;
 var isConnected = false;
 
 function startEmployeeChat() {
-    employeeConnection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").withAutomaticReconnect().build();
-
     employeeConnection.start()
         .then(() => {
-            console.info("Connected");
             enableEmployeeChat();
         })
         .catch((err) => {
@@ -19,31 +16,28 @@ function startEmployeeChat() {
 }
 
 function enableEmployeeChat() {
-    var messageInput = $(`#message-input${currentChatId}`)[0];
-    var sendButton = $(`#send-button${currentChatId}`)[0];
+    var messageInput = $(`#message-input${currentChatId}`);
+    var sendButton = $(`#send-button${currentChatId}`);
 
     if (sendButton) {
-        sendButton.addEventListener('click', () => {
-            var messageText = messageInput.value;
+        sendButton.click(() => {
+            var messageText = messageInput.val();
             if (messageText) {
                 sendMessageToCustomer(messageText);
-                messageInput.value = '';
+                messageInput.val('');
             }
         })
     }
 
-    console.info("Chat iniciado");
-    employeeConnection.on("EmployeesReceive", (message, chatId) => {
-        var html = `<li class="list-group-item" id="${chatId}" onclick="showChat('${chatId}')">Chat ${chatId} <strong style="color:green" id="newMessages${chatId}"></strong></li>`;
+    employeeConnection.on('EmployeesReceive', (message, chatId) => {
+        var html = `<li class="list-group-item open" id="${chatId}" onclick="showChat('${chatId}')">Chat ${chatId} <strong style="color:green" id="newMessages${chatId}"></strong></li>`;
 
-        var chatItem = $(`#${chatId}`)[0];
-        if (!chatItem) {
-            $(".list-group").prepend(html);
-        } else {
-            html = $(`#${chatId}`)[0];
+        var chatItem = $(`#${chatId}`);
+        if (chatItem.length) {
+            html = $(`#${chatId}`);
             $(`#${chatId}`).remove();
-            $(".list-group").prepend(html);
         }
+        $('.list-group').prepend(html);
 
         var htmlMessage;
         if (chatId == currentChatId) {
@@ -59,13 +53,13 @@ function enableEmployeeChat() {
         $(`#chat-container${chatId}`).scrollTop = 9999999;
     })
 
-    employeeConnection.on("EmployeesSent", (sent, message, chatId) => {
+    employeeConnection.on('EmployeesSent', (sent, message, chatId) => {
         if (sent) {
             var htmlMessage = `<div class="message user-message">Você: ${message}</div >`;
             $(`#chat-container${chatId}`).append(htmlMessage);
-            $(`#chat-container${chatId}`)[0].scrollTop = 9999999;
+            $(`#chat-container${chatId}`).scrollTop = 9999999;
 
-            var html = $(`#${chatId}`)[0];
+            var html = $(`#${chatId}`);
             $(`#${chatId}`).remove();
             $(".list-group").prepend(html);
         }
@@ -73,8 +67,8 @@ function enableEmployeeChat() {
 }
 
 function changeChats() {
-    var selectChats = document.querySelector("#selectChats");
-    if (selectChats.value == 'open') {
+    var selectChats = $('#selectChats');
+    if (selectChats.val() == 'open') {
         showOpenChats();
     }
     else {
@@ -83,33 +77,19 @@ function changeChats() {
 }
 
 function showOpenChats() {
-    var open = document.querySelectorAll('.open');
-    var closed = document.querySelectorAll('.closed');
+    $('.open').show();
 
-    open.forEach((chat) => {
-        chat.style.display = 'block';
-    })
-
-    closed.forEach((closed) => {
-        closed.style.display = 'none';
-    })
+    $('.closed').hide();
 }
 
 function showClosedChats() {
-    var open = document.querySelectorAll('.open');
-    var closed = document.querySelectorAll('.closed');
+    $('.open').hide();
 
-    open.forEach((chat) => {
-        chat.style.display = 'none';
-    })
-
-    closed.forEach((closed) => {
-        closed.style.display = 'block';
-    })
+    $('.closed').show();
 }
 
 function sendMessageToCustomer(message) {
-    employeeConnection.invoke("SendMessageToCustomer", message, parseInt(currentChatId));
+    employeeConnection.invoke('SendMessageToCustomer', message, parseInt(currentChatId));
 }
 
 function showChat(chatId) {
@@ -117,15 +97,15 @@ function showChat(chatId) {
 
     $(`#newMessages${chatId}`).html('');
 
-    employeeConnection.invoke("GetMessagesByChatId", parseInt(chatId));
+    employeeConnection.invoke('GetMessagesByChatId', parseInt(chatId));
 
-    employeeConnection.on("ReceiveMessages", (messages, chat) => {
-        var disabled = chat.closed ? "disabled" : ""
-        var chatMessage = chat.closed ? "Chat encerrado" : "";
+    employeeConnection.on('ReceiveMessages', (messages, chat) => {
+        var disabled = chat.closed ? 'disabled' : ''
+        var chatMessage = chat.closed ? 'Chat encerrado' : '';
 
         var htmlMessage = `<div class="col-md-8" id="chat">
             <div class="d-flex justify-content-between">
-                <h2>Chat ${chat.id} ${chatMessage ? "- " + chatMessage : ""}</h2>
+                <h2>Chat ${chat.id} ${chatMessage ? '- ' + chatMessage : ''}</h2>
                 <button id="end-button${chat.id}" class="btn bg-danger text-white" style="margin-top: 5px;" onclick="endChat('${chat.id}')" ${disabled}>Encerrar</button>
             </div>
 
@@ -138,18 +118,18 @@ function showChat(chatId) {
             </div>
             </div>`;
 
-        $("#chat").remove();
+        $('#chat').remove();
         $(`#chat-area`).append(htmlMessage);
 
-        var messageInput = $(`#message-input${chat.id}`)[0];
-        var sendButton = $(`#send-button${chat.id}`)[0];
+        var messageInput = $(`#message-input${chat.id}`);
+        var sendButton = $(`#send-button${chat.id}`);
 
         if (sendButton) {
-            sendButton.addEventListener('click', () => {
-                var messageText = messageInput.value;
+            sendButton.click(() => {
+                var messageText = messageInput.val();
                 if (messageText) {
                     sendMessageToCustomer(messageText);
-                    messageInput.value = '';
+                    messageInput.val('');
                 }
             })
         }
@@ -182,22 +162,14 @@ function showChat(chatId) {
 }
 
 function endChat(chatId) {
-    employeeConnection.invoke("EndChat", parseInt(chatId));
+    employeeConnection.invoke('EndChat', parseInt(chatId));
 
-    employeeConnection.on("ChatClosed", (closed) => {
+    employeeConnection.on('ChatClosed', (closed) => {
         if (closed) {
-            var endButton = $(`#end-button${currentChatId}`)[0];
-            var messageInput = $(`#message-input${currentChatId}`)[0];
-            var sendButton = $(`#send-button${currentChatId}`)[0];
-
-            $(`#${currentChatId}`).addClass("closed");
-            $(`#${currentChatId}`).removeClass("open");
+            $(`#${currentChatId}`).addClass('closed');
+            $(`#${currentChatId}`).removeClass('open');
             $(`#${currentChatId}`).hide();
-            $(`#chat`).remove();
-            endButton.disabled = true;
-            messageInput.disabled = true;
-            messageInput.value = "Chat encerrado."
-            sendButton.disabled = true;
+            $('#chat').remove();
         }
     })
 }

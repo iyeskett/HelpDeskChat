@@ -1,16 +1,13 @@
 ﻿"use strict"
 
-var customerConnection;
+var customerConnection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").withAutomaticReconnect().build();
 
 function startCustomerChat() {
-    customerConnection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").withAutomaticReconnect().build();
     customerConnection.start()
         .then(() => {
-            console.info("Connected");
             var chatInfo = JSON.parse(sessionStorage.getItem("chatInfo"));
             if (chatInfo) {
                 customerConnection.invoke("NewConnectionId", chatInfo.id);
-                console.info(chatInfo.id, typeof chatInfo.id);
             }
             enableCustomerChat();
         })
@@ -21,69 +18,69 @@ function startCustomerChat() {
 }
 
 function enableCustomerChat() {
-    const chatContainer = document.getElementById('chat-container');
-    const chatHeader = document.getElementById('chat-header');
-    const closeButton = document.getElementById('close-button');
-    const chatBox = document.getElementById('chat-box');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const toggleButton = document.getElementById('toggle-button');
+    const chatContainer = $('#chat-container');
+    const chatHeader = $('#chat-header');
+    const closeButton = $('#close-button');
+    const chatBox = $('#chat-box');
+    const messageInput = $('#message-input');
+    const sendButton = $('#send-button');
+    const toggleButton = $('#toggle-button');
 
-    chatContainer.style.display = 'none';
-    toggleButton.style.display = 'block';
+    chatContainer.hide();
+    toggleButton.show();
 
-    toggleButton.addEventListener('click', function () {
-        chatContainer.style.display = 'block';
-        toggleButton.style.display = 'none';
+    toggleButton.click(() => {
+        chatContainer.show();
+        toggleButton.hide();
     });
 
-    chatHeader.addEventListener('click', function () {
-        chatContainer.style.display = 'none';
-        toggleButton.style.display = 'block';
+    chatHeader.click(() => {
+        chatContainer.hide();
+        toggleButton.show();
     });
 
-    sendButton.addEventListener('click', function () {
-        const message = messageInput.value;
+    sendButton.click(() => {
+        const message = messageInput.val();
         if (message) {
             sendMessage(message);
-            messageInput.value = '';
+            messageInput.val('');
         }
     });
 
-    customerConnection.on("Sent", (sent, message, chatId) => {
+    customerConnection.on("CustomerReceive", (message, chatId) => {
+        var htmlMessage = `<div class="message other-message">Agente: ${message}</div >`;
+        $('#chat-box').append(htmlMessage);
+        chatBox.scrollTop = 9999999;
+    })
+
+    customerConnection.on('ChatClosed', (closed, chatId) => {
+        var chatInfo = JSON.parse(sessionStorage.getItem('chatInfo'));
+        if (closed && chatInfo.id == chatId) {
+            var messageInput = $('#message-input');
+            var sendButton = $('#send-button');
+
+            messageInput.prop('disabled', true);
+            messageInput.val('Chat encerrado.');
+            sendButton.prop('disabled', true);
+
+            sessionStorage.removeItem('chatInfo');
+        }
+    })
+
+    customerConnection.on('Sent', (sent, message, chatId) => {
         if (sent) {
-            var htmlMessage = '<div class="message user-message">Você: ' + message + '</div >';
-            $("#chat-box").append(htmlMessage);
-            $("#chat-box")[0].scrollTop = 9999999;
+            var htmlMessage = `<div class="message user-message">Você: ${message}</div >`;
+            $('#chat-box').append(htmlMessage);
+            $('#chat-box').scrollTop(9999999);
 
             var chatInfo = { id: chatId };
             sessionStorage.setItem("chatInfo", JSON.stringify(chatInfo));
         }
     })
-
-    customerConnection.on("CustomerReceive", (message, chatId) => {
-        var htmlMessage = '<div class="message other-message">Agente: ' + message + '</div >';
-        $("#chat-box").append(htmlMessage);
-        chatBox.scrollTop = 9999999;
-    })
-
-    customerConnection.on("ChatClosed", (closed) => {
-        console.info(closed);
-        if (closed) {
-            var messageInput = $(`#message-input`)[0];
-            var sendButton = $(`#send-button`)[0];
-
-            messageInput.disabled = true;
-            messageInput.value = "Chat encerrado."
-            sendButton.disabled = true;
-
-            sessionStorage.removeItem("chatInfo");
-        }
-    })
 }
 
 function sendMessage(message) {
-    var chatInfo = JSON.parse(sessionStorage.getItem("chatInfo"));
+    var chatInfo = JSON.parse(sessionStorage.getItem('chatInfo'));
     var chatId;
 
     if (chatInfo) {
@@ -93,5 +90,5 @@ function sendMessage(message) {
         chatId = 0;
     }
 
-    customerConnection.invoke("SendMessage", message, chatId);
+    customerConnection.invoke('SendMessage', message, chatId);
 }
