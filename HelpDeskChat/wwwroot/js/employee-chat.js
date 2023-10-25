@@ -29,28 +29,35 @@ function enableEmployeeChat() {
         })
     }
 
-    employeeConnection.on('EmployeesReceive', (message, chatId) => {
-        var html = `<li class="list-group-item open" id="${chatId}" onclick="showChat('${chatId}')">Chat ${chatId} <strong style="color:green" id="newMessages${chatId}"></strong></li>`;
+    employeeConnection.on('EmployeesReceive', (message, chat) => {
+        var startTime = new Date(chat.startTime);
+        var html = `<li class="list-group-item open" id="${chat.id}" onclick="showChat('${chat.id}')">
+        Chat ${chat.id}
+        <strong style="color:green" id="newMessages${chat.id}"></strong> <br/>
+        <i>${moment(startTime).format('DD/MM HH:mm')}</i>
+        </li>`;
 
-        var chatItem = $(`#${chatId}`);
+        console.log(startTime);
+
+        var chatItem = $(`#${chat.id}`);
         if (chatItem.length) {
-            html = $(`#${chatId}`);
-            $(`#${chatId}`).remove();
+            html = $(`#${chat.id}`);
+            $(`#${chat.id}`).remove();
         }
         $('.list-group').prepend(html);
 
         var htmlMessage;
-        if (chatId == currentChatId) {
+        if (chat.id == currentChatId) {
             htmlMessage = `<div class="message other-message">Cliente: ${message}</div >`;
 
-            $(`#chat-container${chatId}`).append(htmlMessage);
+            $(`#chat-container${chat.id}`).append(htmlMessage);
         } else {
-            var count = $(`#newMessages${chatId}`).text();
+            var count = $(`#newMessages${chat.id}`).text();
 
-            $(`#newMessages${chatId}`).html(++count);
+            $(`#newMessages${chat.id}`).html(++count);
         }
 
-        $(`#chat-container${chatId}`).scrollTop = 9999999;
+        $(`#chat-container${chat.id}`).scrollTop = 9999999;
     })
 
     employeeConnection.on('EmployeesSent', (sent, message, chatId) => {

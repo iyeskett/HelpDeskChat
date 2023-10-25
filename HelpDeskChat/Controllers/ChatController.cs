@@ -15,7 +15,7 @@ namespace HelpDeskChat.Controllers
         public async Task<IActionResult> Index()
         {
             var chats = await _chatService.FindAllAsync();
-            return View(chats);
+            return View(chats.OrderByDescending(_ => _.StartTime).ToList());
         }
     }
 }

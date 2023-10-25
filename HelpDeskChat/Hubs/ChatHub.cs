@@ -42,7 +42,7 @@ namespace HelpDeskChat.Hubs
                 msg = new() { Chat = chat, MessageDate = DateTime.Now, Text = message, Sender = "Customer" };
                 msg = await _messageService.InsertAsync(msg);
 
-                await Clients.Others.SendAsync("EmployeesReceive", message, chat.Id);
+                await Clients.Others.SendAsync("EmployeesReceive", message, chat);
                 await Clients.Caller.SendAsync("Sent", true, message, chat.Id);
             }
             catch (Exception e)

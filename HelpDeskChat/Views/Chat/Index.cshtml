@@ -45,7 +45,7 @@
                 {
                     foreach (var chat in Model)
                     {
-                        <li class="list-group-item @(chat.Closed ? "closed" : "open")" id="@chat.Id" onclick="showChat('@chat.Id')">Chat @chat.Id <strong style="color:green" id="newMessages@(chat.Id)"></strong></li>
+                        <li class="list-group-item @(chat.Closed ? "closed" : "open")" id="@chat.Id" onclick="showChat('@chat.Id')">Chat @chat.Id <strong style="color:green" id="newMessages@(chat.Id)"></strong><br/><i>@chat.StartTime.ToString("dd/MM HH:mm")</i></li>
                     }
                 }
             </ul>
