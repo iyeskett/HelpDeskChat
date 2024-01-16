@@ -48,6 +48,11 @@
             <!-- Messages here -->
         </div>
         <textarea id="message-input" style="max-height:150px;" placeholder="Digite sua mensagem"></textarea>
+        <div class="d-flex align-items-start">
+            <button style="border:none;background-color:transparent" id="imageClick"><i class="bi bi-paperclip"></i></button>
+            <input type="file" accept="image/*" id="imageUpload" style="display:none" />
+            <p>Adicionar imagem</p>
+        </div>
         <button id="send-button" class="btn btn-primary">Enviar</button>
     </div>
 
@@ -63,14 +68,18 @@
     <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
     <script src="~/moment.js/moment.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/employee-chat.js"></script>
-    <script src="~/js/customer-chat.js"></script>
+    <script src="~/js/employee-chat.js" asp-append-version="true"></script>
+    <script src="~/js/customer-chat.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         $(() => { // document ready
             $('#logoff').click(()=>{
                 deleteUser();
                 window.location.href = "/User/Login";
+            })
+
+            $('#imageClick').click(() => {
+                sendImage();
             })
         })
     </script>

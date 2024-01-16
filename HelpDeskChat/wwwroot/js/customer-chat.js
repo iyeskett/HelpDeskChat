@@ -3,6 +3,7 @@
 var customerConnection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").withAutomaticReconnect().build();
 
 function startCustomerChat() {
+    // Start signalr connection
     customerConnection.start()
         .then(() => {
             var chatInfo = JSON.parse(sessionStorage.getItem("chatInfo"));
@@ -91,4 +92,36 @@ function sendMessage(message) {
     }
 
     customerConnection.invoke('SendMessage', message, chatId);
+}
+
+// Send image
+function sendImage() {
+    $('#imageUpload').trigger('click');
+    $('#imageUpload').one('change',() => {
+        uploadImage();
+    })
+    $('#imageUpload').val('');
+}
+
+// Upload image
+function uploadImage() {
+    var formData = new FormData();
+    var fileUpload = $('#imageUpload').get(0);
+    var files = fileUpload.files;
+    formData.append('image', files[0]);
+
+    $.ajax({
+        url: 'Chat/UploadImage',
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+        success: function (result) {
+            var htmlMessage = `<div class="message user-message">Você: <img class="img-fluid" src="${result.src}"/></div >`;
+            $('#chat-box').append(htmlMessage);
+            setTimeout(() => {
+                $('#chat-box').scrollTop(9999999);
+            }, 500)
+        }
+    })
 }
