@@ -29,7 +29,7 @@ function enableEmployeeChat() {
         })
     }
 
-    employeeConnection.on('EmployeesReceive', (message, chat) => {
+    employeeConnection.on('EmployeesReceive', (message, isImage,chat) => {
         var startTime = new Date(chat.startTime);
         var html = `<li class="list-group-item open" id="${chat.id}" onclick="showChat('${chat.id}')">
         Chat ${chat.id}
@@ -48,7 +48,7 @@ function enableEmployeeChat() {
 
         var htmlMessage;
         if (chat.id == currentChatId) {
-            htmlMessage = `<div class="message other-message">Cliente: ${message}</div >`;
+            htmlMessage = isImage ? `<div class="message other-message">Cliente: <img class="img-fluid" src="${message}"/></div >` : `<div class="message other-message">Cliente: ${message}</div >`;
 
             $(`#chat-container${chat.id}`).append(htmlMessage);
         } else {
@@ -155,17 +155,19 @@ function showChat(chatId) {
         }
     })
 
-    function getHtmlMessages(messages) {
-        var html = '';
+    
+}
 
-        messages.forEach((msg) => {
-            var htmlClass = msg.sender == "Employee" ? "user" : "other";
-            var sender = msg.sender == "Employee" ? "Você" : "Cliente";
-            html += `<div class="message ${htmlClass}-message">${sender}: ${msg.text}</div> \n`
-        })
+function getHtmlMessages(messages) {
+    var html = '';
 
-        return html;
-    }
+    messages.forEach((msg) => {
+        var htmlClass = msg.sender == "Employee" ? "user" : "other";
+        var sender = msg.sender == "Employee" ? "Você" : "Cliente";
+        html += msg.isImage ? `<div class="message ${htmlClass}-message">${sender}: <img class="img-fluid" src="${msg.text}"/></div >` : `<div class="message ${htmlClass}-message">${sender}: ${msg.text}</div> \n`
+    })
+    
+    return html;
 }
 
 function endChat(chatId) {

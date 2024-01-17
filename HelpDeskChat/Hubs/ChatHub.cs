@@ -22,7 +22,7 @@ namespace HelpDeskChat.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendMessage(string message, int chatId)
+        public async Task SendMessage(string message, bool isImage, int chatId)
         {
             try
             {
@@ -39,11 +39,11 @@ namespace HelpDeskChat.Hubs
                     chat = await _chatService.FindByIdAsync(chatId);
                 }
 
-                msg = new() { Chat = chat, MessageDate = DateTime.Now, Text = message, Sender = "Customer" };
+                msg = new() { Chat = chat, MessageDate = DateTime.Now, Text = message, IsImage = isImage ,Sender = "Customer" };
                 msg = await _messageService.InsertAsync(msg);
 
-                await Clients.Others.SendAsync("EmployeesReceive", message, chat);
-                await Clients.Caller.SendAsync("Sent", true, message, chat.Id);
+                await Clients.Others.SendAsync("EmployeesReceive", message, isImage ,chat);
+                await Clients.Caller.SendAsync("Sent", true, message, isImage ,chat.Id);
             }
             catch (Exception e)
             {
